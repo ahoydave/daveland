@@ -1,0 +1,18 @@
+{
+  "name": "dlandserv",
+  "packageManager": "yarn@3.2.0",
+  "dependencies": {
+    "express": "^4.18.0",
+    "mongoose": "^6.3.1",
+    "pino": "^7.10.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.13",
+    "pino-pretty": "^7.6.1",
+    "ts-node-dev": "^1.1.8",
+    "typescript": "^4.6.3"
+  },
+  "scripts": {
+    "dev": "ts-node-dev ./src/app.ts | pino-pretty"
+  }
+}
