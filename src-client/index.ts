@@ -1,9 +1,11 @@
+import io from 'socket.io-client'
+
 (function connect() {
     const socket = io()
 
     const sendButton = document.getElementById('messageBtn')
-    const messageText = document.getElementById('message')
-    sendButton.addEventListener('click', (ev) => {
+    const messageText = <HTMLTextAreaElement> document.getElementById('message')!
+    sendButton?.addEventListener('click', (ev) => {
         socket.emit('chat message', messageText.value)
         messageText.value = ''
     })
@@ -13,6 +15,8 @@
         const li = document.createElement('li')
         li.textContent = msg
         li.classList.add('list-group-item')
-        messageList.appendChild(li)
+        messageList?.appendChild(li)
     })
 })()
+
+console.log("hi")
