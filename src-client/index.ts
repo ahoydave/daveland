@@ -1,6 +1,8 @@
 import Phaser from 'phaser'
 import _ from 'lodash';
 
+const gameDiv = document.getElementById('game')
+
 var config = {
     type: Phaser.AUTO,
     width: 800,
@@ -16,55 +18,61 @@ var config = {
         create: create,
         update: update
     },
-    pixelArt: true
+    pixelArt: true,
+    parent: gameDiv,
+    dom: {
+        createContainer: true
+    }
 };
 
 var game = new Phaser.Game(config);
 var cursors: any
 var player: any
+var speech: any
 
-function preload ()
-{
+function preload() {
     this.load.spritesheet('link', 'assets/link.png', {
         frameWidth: 32,
         frameHeight: 32
     })
+    this.load.bitmapFont('atari', 'assets/fonts/bitmap/atari-classic.png', 'assets/fonts/bitmap/atari-classic.xml');
 }
 
-function create ()
-{
+function create() {
     this.anims.create({
         key: 'left',
-        frames: this.anims.generateFrameNumbers('link', { frames: _.range(10, 20)}),
+        frames: this.anims.generateFrameNumbers('link', { frames: _.range(10, 20) }),
         frameRate: 13,
         repeat: -1
     })
     this.anims.create({
         key: 'down',
-        frames: this.anims.generateFrameNumbers('link', { frames: _.range(10)}),
+        frames: this.anims.generateFrameNumbers('link', { frames: _.range(10) }),
         frameRate: 13,
         repeat: -1
     })
     this.anims.create({
         key: 'idle',
-        frames: this.anims.generateFrameNumbers('link', { frames: [ 0 ]}),
+        frames: this.anims.generateFrameNumbers('link', { frames: [0] }),
         frameRate: 13,
         repeat: -1
     })
     this.anims.create({
         key: 'up',
-        frames: this.anims.generateFrameNumbers('link', { frames: _.range(20, 30)}),
+        frames: this.anims.generateFrameNumbers('link', { frames: _.range(20, 30) }),
         frameRate: 13,
         repeat: -1
     })
+
     player = this.physics.add.sprite(400, 300, 'link');
     player.body.allowGravity = false
     player.setScale(2)
+    player.setDepth(1)
     player.anims.play('down', true)
     player.setCollideWorldBounds(true)
 
     let animIndex = 0;
-    const anims = [ 'up', 'down', 'left' ]
+    const anims = ['up', 'down', 'left']
     this.input.on('pointerdown', () => {
         animIndex++
         animIndex = animIndex % anims.length
@@ -72,6 +80,11 @@ function create ()
     })
 
     cursors = this.input.keyboard.createCursorKeys()
+
+    speech = this.add.bitmapText(0, 0, 'atari', 'Hi, whats your name?')
+        .setFontSize(16)
+        .setMaxWidth(300)
+        .setDepth(0)
 }
 
 function update() {
@@ -107,4 +120,23 @@ function update() {
         player.anims.play('idle', true)
         player.flipX = false
     }
+    
 }
+
+(function () {
+    const sendButton = document.getElementById('messageBtn')
+    const messageText = <HTMLTextAreaElement>document.getElementById('message')!
+    sendButton?.addEventListener('click', (ev) => {
+        // socket.emit('chat message', messageText.value)
+        console.log(messageText.value.length)
+        let s = messageText.value
+        if (s.length > 100) {
+            s = s.substring(0, 96) + " ..."
+        }
+        speech
+            .setText(s)
+            .setMaxWidth(300)
+            .setPosition(player.x - 70, player.y + player.displayHeight / 2, 0)
+        messageText.value = ''
+    })
+})()
