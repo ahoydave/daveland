@@ -14,26 +14,10 @@
 </head>
 
 <body>
+    <div id="game"></div>
     <div class="container">
-        <div class="title">
-            <h1>Daveland Chat</h1>
-        </div>
-
         <div class="card">
-            <div class="card-header">Anonymous</div>
-            <div class="card-body">
-                <div class="input-group">
-                    <input type="text" class="form-control" id="username" placeholder="Change your username">
-                    <div class="input-group-append">
-                        <button class="btn btn-warning" type="button" id="usernameBtn">Change</button>
-                    </div>
-                </div>
-            </div>
-            <div class="message-box">
-                <ul class="list-group list-group-flush" id="message-list"></ul>
-                <div class="info"></div>
-            </div>
-            <div class="card-footer">
+            <div class="card-header">
                 <div class="input-group">
                     <input type="text" class="form-control" id="message" placeholder="Send new message">
                     <div class="input-group-append">
@@ -41,10 +25,13 @@
                     </div>
                 </div>
             </div>
+            <div class="message-box">
+                <ul class="list-group list-group-flush" id="message-list"></ul>
+                <div class="info"></div>
+            </div>
         </div>
     </div>
 
-    <div id="game"></div>
 
     <!-- Option 1: Bootstrap Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"

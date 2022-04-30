@@ -1,5 +1,19 @@
 import Phaser from 'phaser'
 import _ from 'lodash';
+import io from 'socket.io-client'
+
+const socket = io()
+
+const sendButton = document.getElementById('messageBtn')
+const messageText = <HTMLTextAreaElement>document.getElementById('message')!
+
+const messageList = document.getElementById('message-list')
+socket.on('chat message', (msg) => {
+    const li = document.createElement('li')
+    li.textContent = msg
+    li.classList.add('list-group-item')
+    messageList?.appendChild(li)
+})
 
 const gameDiv = document.getElementById('game')
 
@@ -84,10 +98,11 @@ function create() {
     cursors = this.input.keyboard.createCursorKeys()
     this.input.keyboard.disableGlobalCapture()
 
-    speech = this.add.bitmapText(0, 0, 'atari', 'Hi, whats your name?')
+    speech = this.add.bitmapText(0, 0, 'atari', '')
         .setFontSize(16)
         .setMaxWidth(300)
         .setDepth(0)
+        .setVisible(false)
 
     messageForm = this.add.dom(100, 100)
         .createFromCache('message-form')
@@ -103,8 +118,7 @@ function create() {
             messageForm.setVisible(false)
         } else {
             messageForm.setVisible(true)
-            messageInput.focus()
-            messageInput.focus()
+            // this doesn't seem to work but not sure why
             messageInput.focus()
         }
     })
@@ -154,14 +168,11 @@ function displaySpeech(s: string) {
         .setText(s)
         .setMaxWidth(300)
         .setPosition(player.x - 70, player.y + player.displayHeight / 2, 0)
+        .setVisible(true)
+    socket.emit('chat message', s)
 }
 
-(function () {
-    const sendButton = document.getElementById('messageBtn')
-    const messageText = <HTMLTextAreaElement>document.getElementById('message')!
-    sendButton?.addEventListener('click', (ev) => {
-        // socket.emit('chat message', messageText.value)
-        displaySpeech(messageText.value)
-        messageText.value = ''
-    })
-})()
+sendButton?.addEventListener('click', (ev) => {
+    displaySpeech(messageText.value)
+    messageText.value = ''
+})
