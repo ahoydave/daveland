@@ -29,6 +29,7 @@ var game = new Phaser.Game(config);
 var cursors: any
 var player: any
 var speech: any
+var messageForm: any
 
 function preload() {
     this.load.spritesheet('link', 'assets/link.png', {
@@ -36,6 +37,7 @@ function preload() {
         frameHeight: 32
     })
     this.load.bitmapFont('atari', 'assets/fonts/bitmap/atari-classic.png', 'assets/fonts/bitmap/atari-classic.xml');
+    this.load.html('message-form', 'assets/html/message_form.html')
 }
 
 function create() {
@@ -80,11 +82,32 @@ function create() {
     })
 
     cursors = this.input.keyboard.createCursorKeys()
+    this.input.keyboard.disableGlobalCapture()
 
     speech = this.add.bitmapText(0, 0, 'atari', 'Hi, whats your name?')
         .setFontSize(16)
         .setMaxWidth(300)
         .setDepth(0)
+
+    messageForm = this.add.dom(100, 100)
+        .createFromCache('message-form')
+        .setDepth(2)
+        .setVisible(false)
+
+    const messageInput: HTMLInputElement = messageForm.node.children[0]
+
+    this.input.keyboard.on('keydown-ENTER', () => {
+        if (messageForm.visible) {
+            displaySpeech(messageInput.value)
+            messageInput.value = ''
+            messageForm.setVisible(false)
+        } else {
+            messageForm.setVisible(true)
+            messageInput.focus()
+            messageInput.focus()
+            messageInput.focus()
+        }
+    })
 }
 
 function update() {
@@ -120,7 +143,17 @@ function update() {
         player.anims.play('idle', true)
         player.flipX = false
     }
-    
+
+}
+
+function displaySpeech(s: string) {
+    if (s.length > 100) {
+        s = s.substring(0, 96) + " ..."
+    }
+    speech
+        .setText(s)
+        .setMaxWidth(300)
+        .setPosition(player.x - 70, player.y + player.displayHeight / 2, 0)
 }
 
 (function () {
@@ -128,15 +161,7 @@ function update() {
     const messageText = <HTMLTextAreaElement>document.getElementById('message')!
     sendButton?.addEventListener('click', (ev) => {
         // socket.emit('chat message', messageText.value)
-        console.log(messageText.value.length)
-        let s = messageText.value
-        if (s.length > 100) {
-            s = s.substring(0, 96) + " ..."
-        }
-        speech
-            .setText(s)
-            .setMaxWidth(300)
-            .setPosition(player.x - 70, player.y + player.displayHeight / 2, 0)
+        displaySpeech(messageText.value)
         messageText.value = ''
     })
 })()
