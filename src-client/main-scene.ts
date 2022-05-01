@@ -2,18 +2,36 @@ import Phaser from 'phaser'
 import { Socket } from 'socket.io-client'
 import _ from 'lodash'
 
-var messageForm: any
-
 export default class MainScene extends Phaser.Scene {
-    constructor(socket: Socket) {
-        super('MainScene')
-        this.socket = socket
-    }
 
     player: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody
     cursors: Phaser.Types.Input.Keyboard.CursorKeys
     speech: Phaser.GameObjects.BitmapText
+    messageForm: Phaser.GameObjects.DOMElement
     socket: Socket
+    playerKey: string
+    addToMessageHistory: Function
+    otherPlayers: Map<string, Phaser.Types.Physics.Arcade.SpriteWithDynamicBody> = new Map()
+
+    constructor(socket: Socket, addToMessageHistory: Function) {
+        super('MainScene')
+        this.socket = socket
+        this.addToMessageHistory = addToMessageHistory
+
+    }
+
+    setPlayerPosition(playerKey: string, x: number, y: number) {
+        if (this.otherPlayers.has(playerKey)) {
+            this.otherPlayers.get(playerKey).setPosition(x, y)
+        } else {
+            console.log('adding new player')
+            const newPlayer = this.physics.add.sprite(x, y, 'link');
+            newPlayer.body.allowGravity = false
+            newPlayer.setScale(2)
+            newPlayer.setDepth(1)
+            this.otherPlayers.set(playerKey, newPlayer)
+        }
+    }
 
     displaySpeech(s: string) {
         if (s.length > 100) {
@@ -24,7 +42,20 @@ export default class MainScene extends Phaser.Scene {
             .setMaxWidth(300)
             .setPosition(this.player.x - 70, this.player.y + this.player.displayHeight / 2, 0)
             .setVisible(true)
+    }
+
+    syncSpeech(s: string) {
         this.socket.emit('chat message', s)
+    }
+
+    sendMessage(s: string) {
+        this.displaySpeech(s)
+        this.syncSpeech(s)
+        this.addToMessageHistory('me', s)
+    }
+
+    setName(s: string) {
+        this.socket.emit('set name', s)
     }
 
     preload() {
@@ -87,29 +118,49 @@ export default class MainScene extends Phaser.Scene {
             .setDepth(0)
             .setVisible(false)
 
-        messageForm = this.add.dom(100, 100)
+        this.messageForm = this.add.dom(100, 100)
             .createFromCache('message-form')
             .setDepth(2)
             .setVisible(false)
 
-        const messageInput: HTMLInputElement = messageForm.node.children[0]
+        const messageInput: HTMLInputElement = <HTMLInputElement>this.messageForm.node.children[0]
 
         this.input.keyboard.on('keydown-ENTER', () => {
-            if (messageForm.visible) {
-                this.displaySpeech(messageInput.value)
+            if (this.messageForm.visible) {
+                // this.displaySpeech(messageInput.value)
+                // this.syncSpeech(messageInput.value)
+                this.setName(messageInput.value)
                 messageInput.value = ''
-                messageForm.setVisible(false)
+                this.messageForm.setVisible(false)
             } else {
-                messageForm.setVisible(true)
+                this.messageForm.setVisible(true)
                 // this doesn't seem to work but not sure why
                 messageInput.focus()
             }
         })
 
         this.sound.pauseOnBlur = false
-        const bgMusic = this.sound.add('woods-loop')
-        bgMusic.play({
-            loop: true
+        // const bgMusic = this.sound.add('woods-loop')
+        // bgMusic.play({
+        //     loop: true
+        // })
+
+        this.socket.on('player message', ({ message, player, playerName }) => {
+            this.addToMessageHistory(playerName, message)
+        })
+
+        this.socket.on('player position', ({ x, y, key, name }: { x: number, y: number, key: string, name: string }) => {
+            this.setPlayerPosition(key, x, y)
+        })
+
+        this.socket.on('remove player', (key) => {
+            if (this.otherPlayers.has(key)) {
+                console.log('Deleted player')
+                this.otherPlayers.get(key).destroy()
+                this.otherPlayers.delete(key)
+            } else {
+                console.log("Can't delete player I don't know about")
+            }
         })
     }
 
@@ -146,7 +197,10 @@ export default class MainScene extends Phaser.Scene {
             this.player.anims.play('idle', true)
             this.player.flipX = false
         }
-
+        this.socket.emit('player position', {
+            x: this.player.x,
+            y: this.player.y
+        })
     }
 
 }

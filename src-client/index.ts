@@ -7,7 +7,14 @@ const socket = io()
 
 const gameDiv = document.getElementById('game')
 
-let mainScene = new MainScene(socket)
+function addToMsgHistory(playerName: string, message: string) {
+    const li = document.createElement('li')
+    li.textContent = playerName + ': ' + message
+    li.classList.add('list-group-item')
+    messageList?.appendChild(li)
+}
+
+let mainScene = new MainScene(socket, addToMsgHistory)
 
 var config = {
     type: Phaser.AUTO,
@@ -33,14 +40,8 @@ const sendButton = document.getElementById('messageBtn')
 const messageText = <HTMLTextAreaElement>document.getElementById('message')!
 
 const messageList = document.getElementById('message-list')
-socket.on('chat message', (msg) => {
-    const li = document.createElement('li')
-    li.textContent = msg
-    li.classList.add('list-group-item')
-    messageList?.appendChild(li)
-})
 
 sendButton?.addEventListener('click', (ev) => {
-    mainScene.displaySpeech(messageText.value)
+    mainScene.sendMessage(messageText.value)
     messageText.value = ''
 })
