@@ -37,8 +37,8 @@ sock.on('connection', (socket) => {
         logger.info('Socket received message: ' + msg)
         socket.broadcast.emit('player message', {
             message: msg,
-            player: key,
-            playerName: playerName
+            key: key,
+            name: playerName
         })
     })
     socket.on('player position', ({ x, y }: { x: number, y: number }) => {

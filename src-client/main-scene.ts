@@ -33,24 +33,20 @@ export default class MainScene extends Phaser.Scene {
         }
     }
 
-    displaySpeech(s: string) {
+    displaySpeech(s: string, player: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody) {
         if (s.length > 100) {
             s = s.substring(0, 96) + " ..."
         }
         this.speech
             .setText(s)
             .setMaxWidth(300)
-            .setPosition(this.player.x - 70, this.player.y + this.player.displayHeight / 2, 0)
+            .setPosition(player.x - 70, player.y + player.displayHeight / 2, 0)
             .setVisible(true)
     }
 
-    syncSpeech(s: string) {
-        this.socket.emit('chat message', s)
-    }
-
     sendMessage(s: string) {
-        this.displaySpeech(s)
-        this.syncSpeech(s)
+        this.displaySpeech(s, this.player)
+        this.socket.emit('chat message', s)
         this.addToMessageHistory('me', s)
     }
 
@@ -127,8 +123,6 @@ export default class MainScene extends Phaser.Scene {
 
         this.input.keyboard.on('keydown-ENTER', () => {
             if (this.messageForm.visible) {
-                // this.displaySpeech(messageInput.value)
-                // this.syncSpeech(messageInput.value)
                 this.setName(messageInput.value)
                 messageInput.value = ''
                 this.messageForm.setVisible(false)
@@ -145,8 +139,11 @@ export default class MainScene extends Phaser.Scene {
         //     loop: true
         // })
 
-        this.socket.on('player message', ({ message, player, playerName }) => {
-            this.addToMessageHistory(playerName, message)
+        this.socket.on('player message', ({ message, key, name }) => {
+            if (this.otherPlayers.has(key)) {
+                this.displaySpeech(name + ': ' + message, this.otherPlayers.get(key)
+            }
+            this.addToMessageHistory(name, message)
         })
 
         this.socket.on('player position', ({ x, y, key, name }: { x: number, y: number, key: string, name: string }) => {
