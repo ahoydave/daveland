@@ -141,7 +141,7 @@ export default class MainScene extends Phaser.Scene {
 
         this.socket.on('player message', ({ message, key, name }) => {
             if (this.otherPlayers.has(key)) {
-                this.displaySpeech(name + ': ' + message, this.otherPlayers.get(key)
+                this.displaySpeech(name + ': ' + message, this.otherPlayers.get(key))
             }
             this.addToMessageHistory(name, message)
         })
