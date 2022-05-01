@@ -34,6 +34,7 @@ export default class MainScene extends Phaser.Scene {
         })
         this.load.bitmapFont('atari', 'assets/fonts/bitmap/atari-classic.png', 'assets/fonts/bitmap/atari-classic.xml');
         this.load.html('message-form', 'assets/html/message_form.html')
+        this.load.audio('woods-loop', 'assets/audio/woods_loop.ogg')
     }
 
     create() {
@@ -103,6 +104,12 @@ export default class MainScene extends Phaser.Scene {
                 // this doesn't seem to work but not sure why
                 messageInput.focus()
             }
+        })
+
+        this.sound.pauseOnBlur = false
+        const bgMusic = this.sound.add('woods-loop')
+        bgMusic.play({
+            loop: true
         })
     }
 

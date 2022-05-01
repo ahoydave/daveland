@@ -12,3 +12,7 @@ Literally no idea what I'm doing here yet.
 
 - Have text fade over time
 - Allow multiple users
+
+# Credits
+
+- Background woods music from https://rpgmaker.net/resources/51/
