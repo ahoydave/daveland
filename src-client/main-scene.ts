@@ -2,6 +2,8 @@ import Phaser from 'phaser'
 import { Socket } from 'socket.io-client'
 import _ from 'lodash'
 
+type Doing = 'left' | 'right' | 'up' | 'down' | 'idle'
+
 export default class MainScene extends Phaser.Scene {
 
     player: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody
@@ -20,7 +22,31 @@ export default class MainScene extends Phaser.Scene {
 
     }
 
-    setPlayerPosition(playerKey: string, x: number, y: number) {
+    animatePlayer(player: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody, doing: Doing) {
+        switch (doing) {
+            case 'up':
+                player.anims.play('up', true)
+                player.flipX = false
+                break
+            case 'down':
+                player.anims.play('down', true)
+                player.flipX = false
+                break
+            case 'left':
+                player.anims.play('left', true)
+                player.flipX = false
+                break
+            case 'right':
+                player.anims.play('left', true)
+                player.flipX = true
+                break
+            case 'idle':
+                player.anims.play('idle', true)
+                player.flipX = false
+        }
+    }
+
+    setRemotePlayerPosition(playerKey: string, x: number, y: number) {
         if (this.otherPlayers.has(playerKey)) {
             this.otherPlayers.get(playerKey).setPosition(x, y)
         } else {
@@ -29,7 +55,15 @@ export default class MainScene extends Phaser.Scene {
             newPlayer.body.allowGravity = false
             newPlayer.setScale(2)
             newPlayer.setDepth(1)
+            newPlayer.tint = Math.random() * 0xffffff
             this.otherPlayers.set(playerKey, newPlayer)
+        }
+    }
+
+    updateRemotePlayer({ x, y, key, doing }: { x: number, y: number, key: string, doing: Doing }) {
+        this.setRemotePlayerPosition(key, x, y)
+        if (this.otherPlayers.has(key)) {
+            this.animatePlayer(this.otherPlayers.get(key), doing)
         }
     }
 
@@ -146,8 +180,8 @@ export default class MainScene extends Phaser.Scene {
             this.addToMessageHistory(name, message)
         })
 
-        this.socket.on('player position', ({ x, y, key, name }: { x: number, y: number, key: string, name: string }) => {
-            this.setPlayerPosition(key, x, y)
+        this.socket.on('player update', (content) => {
+            this.updateRemotePlayer(content)
         })
 
         this.socket.on('remove player', (key) => {
@@ -164,40 +198,29 @@ export default class MainScene extends Phaser.Scene {
     update() {
         let xVel = 0
         let yVel = 0
-        if (this.cursors.left.isDown) {
-            xVel -= 160
-        }
-        if (this.cursors.right.isDown) {
-            xVel += 160
-        }
-        if (this.cursors.up.isDown) {
-            yVel -= 160
-        }
-        if (this.cursors.down.isDown) {
-            yVel += 160
-        }
+        xVel += this.cursors.left.isDown ? -160 : 0
+        xVel += this.cursors.right.isDown ? 160 : 0
+        yVel += this.cursors.up.isDown ? -160 : 0
+        yVel += this.cursors.down.isDown ? 160 : 0
         this.player.setVelocityX(xVel)
         this.player.setVelocityY(yVel)
+
+        let doing: Doing = 'idle'
         if (yVel > 0) {
-            this.player.anims.play('down', true)
-            this.player.flipX = false
+            doing = 'down'
         } else if (yVel < 0) {
-            this.player.anims.play('up', true)
-            this.player.flipX = false
+            doing = 'up'
         } else if (xVel > 0) {
-            this.player.anims.play('left', true)
-            this.player.flipX = true
+            doing = 'right'
         } else if (xVel < 0) {
-            this.player.anims.play('left', true)
-            this.player.flipX = false
-        } else {
-            this.player.anims.play('idle', true)
-            this.player.flipX = false
+            doing = 'left'
         }
-        this.socket.emit('player position', {
+        this.animatePlayer(this.player, doing)
+
+        this.socket.emit('player update', {
             x: this.player.x,
-            y: this.player.y
+            y: this.player.y,
+            doing: doing
         })
     }
-
 }

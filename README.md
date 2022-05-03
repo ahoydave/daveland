@@ -13,9 +13,10 @@ Literally no idea what I'm doing here yet.
 - Have text fade over time
 - Each player has their own text
 - Animate remote players
-- Set names in a better way
-- Have some way of showing whether a person has disconnected
-- Be able to get the history from the server
+- Set names in a better way - maybe on startup
+- Better sized window
+- Have some way of showing whether a person has disconnected - fade away or something
+- Be able to get the history from the server - for when you reconnect
 - Find out why so resource intensive - too many update sends?
 
 # Credits

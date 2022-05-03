@@ -50,6 +50,10 @@ sock.on('connection', (socket) => {
             name: playerName
         })
     })
+    socket.on('player update', (content: any) => {
+        content.key = key
+        socket.broadcast.emit('player update', content)
+    })
 })
 
 server.listen(config.port, () => {
