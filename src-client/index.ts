@@ -8,15 +8,15 @@ const socket = io()
 
 const gameDiv = document.getElementById('game')
 
-function addToMsgHistory(playerName: string, message: string) {
-    const li = document.createElement('li')
-    li.textContent = playerName + ': ' + message
-    li.classList.add('list-group-item')
-    messageList?.appendChild(li)
-}
+// function addToMsgHistory(playerName: string, message: string) {
+//     const li = document.createElement('li')
+//     li.textContent = playerName + ': ' + message
+//     li.classList.add('list-group-item')
+//     messageList?.appendChild(li)
+// }
 
 const introScene = new IntroScene(socket)
-const mainScene = new MainScene(socket, addToMsgHistory)
+const mainScene = new MainScene(socket)
 
 var config = {
     type: Phaser.AUTO,
@@ -43,7 +43,7 @@ const messageText = <HTMLTextAreaElement>document.getElementById('message')!
 
 const messageList = document.getElementById('message-list')
 
-sendButton?.addEventListener('click', (ev) => {
-    mainScene.sendMessage(messageText.value)
-    messageText.value = ''
-})
+// sendButton?.addEventListener('click', (ev) => {
+//     mainScene.sendMessage(messageText.value)
+//     messageText.value = ''
+// })

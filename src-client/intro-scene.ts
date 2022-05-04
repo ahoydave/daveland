@@ -21,7 +21,6 @@ export default class IntroScene extends Phaser.Scene {
 
         this.input.keyboard.on('keydown-ENTER', () => {
             if (nameInput.value !== '') {
-                console.log('starting the main scene!')
                 this.socket.emit('set name', nameInput.value)
                 this.scene.start('MainScene')
             }

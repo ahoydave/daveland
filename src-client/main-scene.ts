@@ -12,13 +12,11 @@ export default class MainScene extends Phaser.Scene {
     messageForm: Phaser.GameObjects.DOMElement
     socket: Socket
     playerKey: string
-    addToMessageHistory: Function
     otherPlayers: Map<string, Phaser.Types.Physics.Arcade.SpriteWithDynamicBody> = new Map()
 
-    constructor(socket: Socket, addToMessageHistory: Function) {
+    constructor(socket: Socket) {
         super('MainScene')
         this.socket = socket
-        this.addToMessageHistory = addToMessageHistory
 
     }
 
@@ -80,13 +78,11 @@ export default class MainScene extends Phaser.Scene {
 
         let ttl = 5000 + s.length * 100
         this.speech.push([newSpeech, ttl])
-        console.log(this.speech.length)
     }
 
     sendMessage(s: string) {
         this.displaySpeech(s, this.player)
         this.socket.emit('chat message', s)
-        this.addToMessageHistory('me', s)
     }
 
     setName(s: string) {
@@ -139,24 +135,20 @@ export default class MainScene extends Phaser.Scene {
         this.cursors = this.input.keyboard.createCursorKeys()
         this.input.keyboard.disableGlobalCapture()
 
-        // this.messageForm = this.add.dom(100, 100)
-        //     .createFromCache('message-form')
-        //     .setDepth(2)
-        //     .setVisible(false)
+        this.messageForm = this.add.dom(1, 1)
+            .createFromCache('message-form')
+            .setDepth(2)
+            .setOrigin(0, 0)
+            .setPosition(10, 10)
 
-        // const messageInput: HTMLInputElement = <HTMLInputElement>this.messageForm.node.children[0]
+        const messageInput: HTMLInputElement = <HTMLInputElement>this.messageForm.node.children[0]
 
-        // this.input.keyboard.on('keydown-ENTER', () => {
-        //     if (this.messageForm.visible) {
-        //         this.setName(messageInput.value)
-        //         messageInput.value = ''
-        //         this.messageForm.setVisible(false)
-        //     } else {
-        //         this.messageForm.setVisible(true)
-        //         // this doesn't seem to work but not sure why
-        //         messageInput.focus()
-        //     }
-        // })
+        this.input.keyboard.on('keydown-ENTER', () => {
+            if (messageInput.value !== '') {
+                this.sendMessage(messageInput.value)
+                messageInput.value = ''
+            }
+        })
 
         // this.input.keyboard.on('keydown-ENTER', () => {
         //     if (this.messageForm) {
@@ -184,7 +176,6 @@ export default class MainScene extends Phaser.Scene {
             if (this.otherPlayers.has(key)) {
                 this.displaySpeech(name + ': ' + message, this.otherPlayers.get(key))
             }
-            this.addToMessageHistory(name, message)
         })
 
         this.socket.on('player update', (content) => {
