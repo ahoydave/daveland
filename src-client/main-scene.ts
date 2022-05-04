@@ -1,6 +1,7 @@
 import Phaser from 'phaser'
 import { Socket } from 'socket.io-client'
 import _ from 'lodash'
+import { Vector } from 'matter'
 
 type Doing = 'left' | 'right' | 'up' | 'down' | 'idle'
 
@@ -8,7 +9,7 @@ export default class MainScene extends Phaser.Scene {
 
     player: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody
     cursors: Phaser.Types.Input.Keyboard.CursorKeys
-    speech: Phaser.GameObjects.BitmapText
+    speech: Array<[Phaser.GameObjects.BitmapText, number]> = []
     messageForm: Phaser.GameObjects.DOMElement
     socket: Socket
     playerKey: string
@@ -71,11 +72,16 @@ export default class MainScene extends Phaser.Scene {
         if (s.length > 100) {
             s = s.substring(0, 96) + " ..."
         }
-        this.speech
-            .setText(s)
+        let newSpeech = this.add.bitmapText(0, 0, 'atari', s)
+            .setFontSize(16)
             .setMaxWidth(300)
+            .setDepth(0)
             .setPosition(player.x - 70, player.y + player.displayHeight / 2, 0)
             .setVisible(true)
+
+        let ttl = 5000 + s.length * 100
+        this.speech.push([newSpeech, ttl])
+        console.log(this.speech.length)
     }
 
     sendMessage(s: string) {
@@ -142,12 +148,6 @@ export default class MainScene extends Phaser.Scene {
         this.cursors = this.input.keyboard.createCursorKeys()
         this.input.keyboard.disableGlobalCapture()
 
-        this.speech = this.add.bitmapText(0, 0, 'atari', '')
-            .setFontSize(16)
-            .setMaxWidth(300)
-            .setDepth(0)
-            .setVisible(false)
-
         this.messageForm = this.add.dom(100, 100)
             .createFromCache('message-form')
             .setDepth(2)
@@ -195,7 +195,7 @@ export default class MainScene extends Phaser.Scene {
         })
     }
 
-    update() {
+    update(_time: number, delta: number) {
         let xVel = 0
         let yVel = 0
         xVel += this.cursors.left.isDown ? -160 : 0
@@ -222,5 +222,16 @@ export default class MainScene extends Phaser.Scene {
             y: this.player.y,
             doing: doing
         })
+
+        for (let i = 0; i < this.speech.length; i++) {
+            this.speech[i][1] -= delta
+            if (this.speech[i][1] <= 0) {
+                this.speech[i][0].destroy();
+            } else {
+                const newAlpha = Math.min(1000, this.speech[i][1]) / 1000
+                this.speech[i][0].alpha = newAlpha
+            }
+        }
+        this.speech = this.speech.filter(([_, ttl]) => ttl > 0)
     }
 }
