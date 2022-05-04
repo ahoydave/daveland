@@ -15,13 +15,13 @@ function addToMsgHistory(playerName: string, message: string) {
     messageList?.appendChild(li)
 }
 
-const introScene = new IntroScene(socket) 
+const introScene = new IntroScene(socket)
 const mainScene = new MainScene(socket, addToMsgHistory)
 
 var config = {
     type: Phaser.AUTO,
-    width: 800,
-    height: 600,
+    width: window.innerWidth,
+    height: window.innerHeight,
     physics: {
         default: 'arcade',
         arcade: {
