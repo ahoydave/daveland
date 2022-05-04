@@ -1,7 +1,8 @@
 import Phaser from 'phaser'
-import _ from 'lodash';
+import _ from 'lodash'
 import io from 'socket.io-client'
-import MainScene from './main-scene';
+import MainScene from './main-scene'
+import IntroScene from './intro-scene'
 
 const socket = io()
 
@@ -14,7 +15,8 @@ function addToMsgHistory(playerName: string, message: string) {
     messageList?.appendChild(li)
 }
 
-let mainScene = new MainScene(socket, addToMsgHistory)
+const introScene = new IntroScene(socket) 
+const mainScene = new MainScene(socket, addToMsgHistory)
 
 var config = {
     type: Phaser.AUTO,
@@ -26,7 +28,7 @@ var config = {
             gravity: { y: 200 }
         }
     },
-    scene: mainScene,
+    scene: [introScene, mainScene],
     pixelArt: true,
     parent: gameDiv,
     dom: {

@@ -1,7 +1,6 @@
 import Phaser from 'phaser'
 import { Socket } from 'socket.io-client'
 import _ from 'lodash'
-import { Vector } from 'matter'
 
 type Doing = 'left' | 'right' | 'up' | 'down' | 'idle'
 
@@ -137,35 +136,43 @@ export default class MainScene extends Phaser.Scene {
         this.player.anims.play('down', true)
         this.player.setCollideWorldBounds(true)
 
-        let animIndex = 0;
-        const anims = ['up', 'down', 'left']
-        this.input.on('pointerdown', () => {
-            animIndex++
-            animIndex = animIndex % anims.length
-            this.player.play(anims[animIndex])
-        })
-
         this.cursors = this.input.keyboard.createCursorKeys()
         this.input.keyboard.disableGlobalCapture()
 
-        this.messageForm = this.add.dom(100, 100)
-            .createFromCache('message-form')
-            .setDepth(2)
-            .setVisible(false)
+        // this.messageForm = this.add.dom(100, 100)
+        //     .createFromCache('message-form')
+        //     .setDepth(2)
+        //     .setVisible(false)
 
-        const messageInput: HTMLInputElement = <HTMLInputElement>this.messageForm.node.children[0]
+        // const messageInput: HTMLInputElement = <HTMLInputElement>this.messageForm.node.children[0]
 
-        this.input.keyboard.on('keydown-ENTER', () => {
-            if (this.messageForm.visible) {
-                this.setName(messageInput.value)
-                messageInput.value = ''
-                this.messageForm.setVisible(false)
-            } else {
-                this.messageForm.setVisible(true)
-                // this doesn't seem to work but not sure why
-                messageInput.focus()
-            }
-        })
+        // this.input.keyboard.on('keydown-ENTER', () => {
+        //     if (this.messageForm.visible) {
+        //         this.setName(messageInput.value)
+        //         messageInput.value = ''
+        //         this.messageForm.setVisible(false)
+        //     } else {
+        //         this.messageForm.setVisible(true)
+        //         // this doesn't seem to work but not sure why
+        //         messageInput.focus()
+        //     }
+        // })
+
+        // this.input.keyboard.on('keydown-ENTER', () => {
+        //     if (this.messageForm) {
+        //         const messageInput: HTMLInputElement = <HTMLInputElement>this.messageForm.node.children[0]
+        //         if (messageInput.value !== '') {
+        //             this.setName(messageInput.value)
+        //         }
+        //         this.messageForm.destroy()
+        //     } else {
+        //         this.messageForm = this.add.dom(100, 100)
+        //             .createFromCache('message-form')
+        //             .setDepth(2)
+        //         // this doesn't seem to work but not sure why
+        //         // messageInput.focus()
+        //     }
+        // })
 
         this.sound.pauseOnBlur = false
         // const bgMusic = this.sound.add('woods-loop')
