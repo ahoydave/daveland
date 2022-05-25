@@ -1,6 +1,5 @@
 {
   "name": "dlandserv",
-  "packageManager": "yarn@3.2.0",
   "private": true,
   "dependencies": {
     "express": "^4.18.0",
@@ -23,7 +22,7 @@
   "scripts": {
     "dev-server": "ts-node-dev ./src-server/app.ts | pino-pretty",
     "dev-client": "webpack --watch",
-    "build-server": "tsc ./src-server/app.ts",
+    "build-server": "tsc",
     "build-client": "webpack",
     "run-server": "node dist/app.js"
   }
