@@ -1,14 +1,21 @@
-version: "3.8"
+# version: "3.8"
+# services:
+#   api:
+#     container_name: dland-api
+#     image: "node:16"
+#     user: "node"
+#     working_dir: /home/node/app
+#     # environment:
+#     #   - NODE_ENV=production
+#     volumes:
+#       - ./:/home/node/app
+#     ports:
+#       - 3000:3000
+#     command: "yarn run-server"
+
+version: "3.9"
 services:
-  api:
-    container_name: dland-api
-    image: "node:16"
-    user: "node"
-    working_dir: /home/node/app
-    # environment:
-    #   - NODE_ENV=production
-    volumes:
-      - ./:/home/node/app
+  web:
+    build: .
     ports:
-      - 3000:3000
-    command: "yarn run dev"
+      - "80:3000"

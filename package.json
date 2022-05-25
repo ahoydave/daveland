@@ -22,6 +22,9 @@
   },
   "scripts": {
     "dev-server": "ts-node-dev ./src-server/app.ts | pino-pretty",
-    "dev-client": "webpack --watch"
+    "dev-client": "webpack --watch",
+    "build-server": "tsc ./src-server/app.ts",
+    "build-client": "webpack",
+    "run-server": "node dist/app.js"
   }
 }
